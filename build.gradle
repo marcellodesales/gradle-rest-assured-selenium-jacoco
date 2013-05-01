@@ -23,6 +23,7 @@ repositories { mavenCentral() }
 configurations {
 	// JaCoCo is a free code coverage library for Java, see http://www.eclemma.org/jacoco/
 	jacoco
+        jacocoAnt
 }
 
 sourceSets {
@@ -36,11 +37,22 @@ dependencies {
 	testCompile (
 		"junit:junit:$junitVersion"
 	)
-	
+
+        compile 'com.sun.jersey:jersey-server:1.17'
+  	compile 'com.sun.jersey:jersey-servlet:1.17'
+  	compile 'com.sun.jersey:jersey-core:1.17'
+  	compile 'javax.ws.rs:jsr311-api:1.1.1'
+
 	integrationTestCompile sourceSets.main.output
 	integrationTestCompile configurations.testCompile
 	integrationTestCompile sourceSets.test.output
 	integrationTestCompile (
+                // REST-ASSURED Support
+	        "com.jayway.restassured:rest-assured:1.8.0",
+        	"com.jayway.restassured:json-path:1.8.0",
+        	"org.codehaus.groovy:groovy-all:2.1.3",
+
+                // Fluent Selenium Support
 		"org.seleniumhq.selenium.fluent:fluent-selenium:$fluentSeleniumVersion",
 		"org.fluentlenium:fluentlenium-festassert:$festassertVersion"
 	)
@@ -58,7 +70,7 @@ dependencies {
 	}
 	
 	jacoco group: "org.jacoco", name: "org.jacoco.agent", version: "$jacocoVersion", classifier: "runtime"
-        jacoco "org.jacoco:org.jacoco.ant:$jacocoVersion"
+        jacocoAnt "org.jacoco:org.jacoco.ant:$jacocoVersion"
 }
 
 // set source file encoding for all compile tasks
@@ -165,7 +177,7 @@ eclipse {
 }
 
 task jacocoReport << {
-    ant.taskdef(name:'jacocoreport', classname: 'org.jacoco.ant.ReportTask', classpath: configurations.jacoco.asPath)
+    ant.taskdef(name:'jacocoreport', classname: 'org.jacoco.ant.ReportTask', classpath: configurations.jacocoAnt.asPath)
     ant.mkdir dir: "$buildDir/reports/coverage"
     
     ant.jacocoreport {
